@@ -19,6 +19,7 @@ class NumpyRecipe(CythonRecipe):
         if self.has_marker("patched"):
             return
         self.apply_patch("numpy-1.16.4.patch")
+        self.apply_patch("ios.patch")
         self.set_marker("patched")
 
     def get_recipe_env(self, arch):
