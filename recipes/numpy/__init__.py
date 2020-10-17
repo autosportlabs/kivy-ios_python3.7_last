@@ -20,7 +20,7 @@ class NumpyRecipe(CythonRecipe):
             return
 #        self.apply_patch("numpy-1.16.4.patch")
  #       self.apply_patch("ios.patch")
-        self.set_marker("numpy-combined.patch")
+        self.apply_patch("numpy-combined.patch")
         self.set_marker("patched")
 
     def get_recipe_env(self, arch):
