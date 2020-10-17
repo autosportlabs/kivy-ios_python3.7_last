@@ -138,19 +138,6 @@ unchanged:
      if (PyErr_Occurred()) {
 only in patch2:
 unchanged:
---- a/numpy/linalg/setup.py
-+++ b/numpy/linalg/setup.py
-@@ -48,7 +48,7 @@ def get_lapack_lite_sources(ext, build_dir):
-     # umath_linalg module
-     config.add_extension(
-         '_umath_linalg',
--        sources=['umath_linalg.c.src', get_lapack_lite_sources],
-+        sources=['umath_linalg.c.src', lambda e, b: []],
-         depends=['lapack_lite/f2c.h'],
-         extra_info=lapack_info,
-         libraries=['npymath'],
-only in patch2:
-unchanged:
 --- a/numpy/linalg/umath_linalg.c.src
 +++ b/numpy/linalg/umath_linalg.c.src
 @@ -68,6 +68,8 @@ dbg_stack_trace()
