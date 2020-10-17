@@ -18,8 +18,9 @@ class NumpyRecipe(CythonRecipe):
     def prebuild_arch(self, arch):
         if self.has_marker("patched"):
             return
-        self.apply_patch("numpy-1.16.4.patch")
-        self.apply_patch("ios.patch")
+#        self.apply_patch("numpy-1.16.4.patch")
+ #       self.apply_patch("ios.patch")
+        self.set_marker("numpy-combined.patch")
         self.set_marker("patched")
 
     def get_recipe_env(self, arch):
