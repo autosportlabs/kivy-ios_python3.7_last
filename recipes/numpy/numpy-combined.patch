@@ -19,10 +19,13 @@ unchanged:
                  return []
              return [all_sources[0]]
  
++    def get_lapack_lite_sources_ios(ext, build_dir):
++        return []
++
      config.add_extension(
          'lapack_lite',
 -        sources=['lapack_litemodule.c', get_lapack_lite_sources],
-+        sources=['lapack_litemodule.c',  lambda e, b: []],
++        sources=['lapack_litemodule.c', lambda e, b: []],
          depends=['lapack_lite/f2c.h'],
          extra_info=lapack_info,
      )
@@ -31,7 +34,7 @@ unchanged:
      config.add_extension(
          '_umath_linalg',
 -        sources=['umath_linalg.c.src', get_lapack_lite_sources],
-+        sources=['umath_linalg.c.src',  lambda e, b: []],
++        sources=['umath_linalg.c.src', lambda e, b: []],
          depends=['lapack_lite/f2c.h'],
          extra_info=lapack_info,
          libraries=['npymath'],
