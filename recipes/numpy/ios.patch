@@ -18,8 +18,8 @@ proceed as before and the resulting binary to be accepted by the App Store.
 
 diff --git a/numpy/core/setup.py b/numpy/core/setup.py
 index aad0aae4304..407e64fe3f9 100644
-#--- a/numpy/core/setup.py
-#+++ b/numpy/core/setup.py
+--- a/numpy/core/setup.py
++++ b/numpy/core/setup.py
 #@@ -757,7 +757,9 @@ def get_mathlib_info(*args):
 #             join('src', 'common', 'numpyos.c'),
 #             ]
