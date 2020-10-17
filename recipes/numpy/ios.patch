@@ -20,17 +20,17 @@ diff --git a/numpy/core/setup.py b/numpy/core/setup.py
 index aad0aae4304..407e64fe3f9 100644
 --- a/numpy/core/setup.py
 +++ b/numpy/core/setup.py
-#@@ -757,7 +757,9 @@ def get_mathlib_info(*args):
-#             join('src', 'common', 'numpyos.c'),
-#             ]
-# 
-#-    blas_info = get_info('blas_opt', 0)
-#+    # XXX IOS, no blas available
-#+    # blas_info = get_info('blas_opt', 0)
-#+    blas_info = None
-#     if blas_info and ('HAVE_CBLAS', None) in blas_info.get('define_macros', []):
-#         extra_info = blas_info
-#         # These files are also in MANIFEST.in so that they are always in
+@@ -757,7 +757,9 @@ def get_mathlib_info(*args):
+             join('src', 'common', 'numpyos.c'),
+             ]
+ 
+-    blas_info = get_info('blas_opt', 0)
++    # XXX IOS, no blas available
++    # blas_info = get_info('blas_opt', 0)
++    blas_info = None
+     if blas_info and ('HAVE_CBLAS', None) in blas_info.get('define_macros', []):
+         extra_info = blas_info
+         # These files are also in MANIFEST.in so that they are always in
 @@ -822,7 +824,10 @@ def get_mathlib_info(*args):
              join('include', 'numpy', 'npy_1_7_deprecated_api.h'),
              # add library sources as distuils does not consider libraries
@@ -87,19 +87,19 @@ index 696a6d87401..d187ad2d12b 100644
      NPY_END_THREADS;
  
      if (PyErr_Occurred()) {
-#diff --git a/numpy/linalg/setup.py b/numpy/linalg/setup.py
-#index 66c07c9e1e4..6f81243be24 100644
-#--- a/numpy/linalg/setup.py
-#+++ b/numpy/linalg/setup.py
-#@@ -48,7 +48,7 @@ def get_lapack_lite_sources(ext, build_dir):
-#     # umath_linalg module
-#     config.add_extension(
-#         '_umath_linalg',
-#-        sources=['umath_linalg.c.src', get_lapack_lite_sources],
-#+        sources=['umath_linalg.c.src', lambda e, b: []],
-#         depends=['lapack_lite/f2c.h'],
-#         extra_info=lapack_info,
-#         libraries=['npymath'],
+diff --git a/numpy/linalg/setup.py b/numpy/linalg/setup.py
+index 66c07c9e1e4..6f81243be24 100644
+--- a/numpy/linalg/setup.py
++++ b/numpy/linalg/setup.py
+@@ -48,7 +48,7 @@ def get_lapack_lite_sources(ext, build_dir):
+     # umath_linalg module
+     config.add_extension(
+         '_umath_linalg',
+-        sources=['umath_linalg.c.src', get_lapack_lite_sources],
++        sources=['umath_linalg.c.src', lambda e, b: []],
+         depends=['lapack_lite/f2c.h'],
+         extra_info=lapack_info,
+         libraries=['npymath'],
 diff --git a/numpy/linalg/umath_linalg.c.src b/numpy/linalg/umath_linalg.c.src
 index 9fc68a7aa93..270c9bc326a 100644
 --- a/numpy/linalg/umath_linalg.c.src

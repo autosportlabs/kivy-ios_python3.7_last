@@ -1,72 +1,23 @@
-unchanged:
---- numpy-1.16.4.orig/numpy/core/setup.py	2019-05-27 12:41:06.000000000 +0200
-+++ numpy-1.16.4/numpy/core/setup.py	2019-09-28 12:51:56.000000000 +0200
-@@ -757,7 +757,9 @@
-             join('src', 'common', 'numpyos.c'),
-             ]
- 
--    blas_info = get_info('blas_opt', 0)
-+    # XXX IOS, no blas available
-+    # blas_info = get_info('blas_opt', 0)
-+    blas_info = None
-     if blas_info and ('HAVE_CBLAS', None) in blas_info.get('define_macros', []):
-         extra_info = blas_info
-         # These files are also in MANIFEST.in so that they are always in
-unchanged:
---- numpy-1.16.4.orig/numpy/linalg/setup.py	2019-02-21 17:33:42.000000000 +0100
-+++ numpy-1.16.4/numpy/linalg/setup.py	2019-09-28 17:34:15.000000000 +0200
-@@ -38,9 +38,12 @@
-                 return []
-             return [all_sources[0]]
- 
-+    def get_lapack_lite_sources_ios(ext, build_dir):
-+        return []
-+
-     config.add_extension(
-         'lapack_lite',
--        sources=['lapack_litemodule.c', get_lapack_lite_sources],
-+        sources=['lapack_litemodule.c', lambda e, b: []],
-         depends=['lapack_lite/f2c.h'],
-         extra_info=lapack_info,
-     )
-@@ -48,7 +51,7 @@
-     # umath_linalg module
-     config.add_extension(
-         '_umath_linalg',
--        sources=['umath_linalg.c.src', get_lapack_lite_sources],
-+        sources=['umath_linalg.c.src', lambda e, b: []],
-         depends=['lapack_lite/f2c.h'],
-         extra_info=lapack_info,
-         libraries=['npymath'],
-unchanged:
---- numpy-1.16.4.orig/numpy/core/setup.py	2019-09-28 17:41:37.000000000 +0200
-+++ numpy-1.16.4/numpy/core/setup.py	2019-09-28 17:41:58.000000000 +0200
-@@ -824,7 +824,10 @@
-             join('include', 'numpy', 'npy_1_7_deprecated_api.h'),
-             # add library sources as distuils does not consider libraries
-             # dependencies
--            ] + npysort_sources + npymath_sources
-+
-+            # XXX This breaks for iOS, it results on duplicate symbols
-+            # ] + npysort_sources + npymath_sources
-+            ] #+ npysort_sources + npymath_sources
- 
-     multiarray_src = [
-             join('src', 'multiarray', 'alloc.c'),
-unchanged:
---- numpy-1.16.4.orig/numpy/core/setup.py	2019-09-28 17:42:38.000000000 +0200
-+++ numpy-1.16.4/numpy/core/setup.py	2019-09-28 17:44:09.000000000 +0200
-@@ -926,7 +926,7 @@
- 
-     config.add_extension('_multiarray_umath',
-                          sources=multiarray_src + umath_src +
--                                 npymath_sources + common_src +
-+                                 common_src +
-                                  [generate_config_h,
-                                   generate_numpyconfig_h,
-                                   generate_numpy_api,
-only in patch2:
-unchanged:
+From 619c3c72a2d0266edc031b6ca8e2e35206fc0209 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?L=C3=A9lio?= <github@lio.re>
+Date: Mon, 4 May 2020 11:07:16 +0200
+Subject: [PATCH] BUG: rename symbols for iOS compatibility.
+
+Apple forbids some symbols that Numpy is linked against (ccopy, dcopy, scopy, zcopy and xerbla).
+Compilation and tests work fine but the App Store complains and prevents uploading such builds.
+
+This patch aliases the culprits to the public, allowed method names, allowing the linking to
+proceed as before and the resulting binary to be accepted by the App Store.
+---
+ numpy/core/setup.py                      | 11 ++++++++---
+ numpy/linalg/lapack_lite/python_xerbla.c |  2 +-
+ numpy/linalg/lapack_litemodule.c         |  4 ++--
+ numpy/linalg/setup.py                    |  2 +-
+ numpy/linalg/umath_linalg.c.src          | 16 +++++++++++-----
+ 5 files changed, 23 insertions(+), 12 deletions(-)
+
+diff --git a/numpy/core/setup.py b/numpy/core/setup.py
+index aad0aae4304..407e64fe3f9 100644
 --- a/numpy/core/setup.py
 +++ b/numpy/core/setup.py
 @@ -757,7 +757,9 @@ def get_mathlib_info(*args):
@@ -101,8 +52,8 @@ unchanged:
                                   [generate_config_h,
                                    generate_numpyconfig_h,
                                    generate_numpy_api,
-only in patch2:
-unchanged:
+diff --git a/numpy/linalg/lapack_lite/python_xerbla.c b/numpy/linalg/lapack_lite/python_xerbla.c
+index dfc195556b4..7110d1fc352 100644
 --- a/numpy/linalg/lapack_lite/python_xerbla.c
 +++ b/numpy/linalg/lapack_lite/python_xerbla.c
 @@ -20,7 +20,7 @@
@@ -114,8 +65,8 @@ unchanged:
  {
          static const char format[] = "On entry to %.*s" \
                  " parameter number %d had an illegal value";
-only in patch2:
-unchanged:
+diff --git a/numpy/linalg/lapack_litemodule.c b/numpy/linalg/lapack_litemodule.c
+index 696a6d87401..d187ad2d12b 100644
 --- a/numpy/linalg/lapack_litemodule.c
 +++ b/numpy/linalg/lapack_litemodule.c
 @@ -45,7 +45,7 @@ extern int FNAME(zungqr)(int *m, int *n, int *k, f2c_doublecomplex a[],
@@ -136,8 +87,21 @@ unchanged:
      NPY_END_THREADS;
  
      if (PyErr_Occurred()) {
-only in patch2:
-unchanged:
+diff --git a/numpy/linalg/setup.py b/numpy/linalg/setup.py
+index 66c07c9e1e4..6f81243be24 100644
+--- a/numpy/linalg/setup.py
++++ b/numpy/linalg/setup.py
+@@ -48,7 +48,7 @@ def get_lapack_lite_sources(ext, build_dir):
+     # umath_linalg module
+     config.add_extension(
+         '_umath_linalg',
+-        sources=['umath_linalg.c.src', get_lapack_lite_sources],
++        sources=['umath_linalg.c.src', lambda e, b: []],
+         depends=['lapack_lite/f2c.h'],
+         extra_info=lapack_info,
+         libraries=['npymath'],
+diff --git a/numpy/linalg/umath_linalg.c.src b/numpy/linalg/umath_linalg.c.src
+index 9fc68a7aa93..270c9bc326a 100644
 --- a/numpy/linalg/umath_linalg.c.src
 +++ b/numpy/linalg/umath_linalg.c.src
 @@ -68,6 +68,8 @@ dbg_stack_trace()
